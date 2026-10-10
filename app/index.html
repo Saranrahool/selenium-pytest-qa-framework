@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Fleet Device Portal - Sign in</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card narrow">
+    <h1>Fleet Device Portal</h1>
+    <p class="muted">Sign in to manage onboard cameras and recorders.</p>
+    <form id="login-form" novalidate>
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password">
+      <button id="login-button" type="submit">Sign in</button>
+      <p id="login-error" class="error" role="alert" hidden></p>
+    </form>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("login-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var result = Portal.login(
+        document.getElementById("username").value,
+        document.getElementById("password").value
+      );
+      var err = document.getElementById("login-error");
+      if (result.ok) {
+        window.location.href = "devices.html";
+      } else {
+        err.textContent = result.error;
+        err.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Fleet Device Portal - Devices</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card">
+    <header class="row">
+      <h1>Devices</h1>
+      <span>Signed in as <strong id="current-user"></strong>
+        <button id="logout-button" class="link">Sign out</button></span>
+    </header>
+    <div class="row filters">
+      <label for="status-filter">Status</label>
+      <select id="status-filter">
+        <option>All</option>
+        <option>Online</option>
+        <option>Offline</option>
+      </select>
+      <label for="search">Search</label>
+      <input id="search" placeholder="Bus or device ID">
+    </div>
+    <table id="device-table">
+      <thead>
+        <tr><th>Device ID</th><th>Bus</th><th>Type</th><th>Status</th><th>Firmware</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p id="result-count" class="muted"></p>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    var user = Portal.requireLogin();
+    document.getElementById("current-user").textContent = user;
+
+    function render() {
+      var rows = Portal.listDevices(
+        document.getElementById("status-filter").value,
+        document.getElementById("search").value
+      );
+      var body = document.querySelector("#device-table tbody");
+      body.innerHTML = "";
+      rows.forEach(function (d) {
+        var tr = document.createElement("tr");
+        tr.setAttribute("data-device-id", d.id);
+        tr.innerHTML =
+          '<td><a href="device.html?id=' + d.id + '">' + d.id + "</a></td>" +
+          "<td>" + d.bus + "</td><td>" + d.type + "</td>" +
+          '<td class="status">' + d.status + "</td><td>" + d.firmware + "</td>";
+        body.appendChild(tr);
+      });
+      document.getElementById("result-count").textContent = rows.length + " device(s)";
+    }
+
+    document.getElementById("status-filter").addEventListener("change", render);
+    document.getElementById("search").addEventListener("input", render);
+    document.getElementById("logout-button").addEventListener("click", function () {
+      Portal.logout();
+      window.location.href = "index.html";
+    });
+    render();
+  </script>
+</body>
+</html>

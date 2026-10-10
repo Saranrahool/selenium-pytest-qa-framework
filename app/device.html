@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Fleet Device Portal - Device configuration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card narrow">
+    <a href="devices.html" id="back-link">&larr; Back to devices</a>
+    <h1 id="device-title"></h1>
+    <p class="muted" id="device-meta"></p>
+    <form id="config-form" novalidate>
+      <label for="ip">IP address</label>
+      <input id="ip" name="ip" value="192.168.1.50">
+      <p class="error" id="ip-error" hidden></p>
+
+      <label for="retention">Video retention (days)</label>
+      <input id="retention" name="retention" value="30">
+      <p class="error" id="retention-error" hidden></p>
+
+      <label for="resolution">Resolution</label>
+      <select id="resolution" name="resolution">
+        <option value="">Select...</option>
+        <option value="720p">720p</option>
+        <option value="1080p" selected>1080p</option>
+        <option value="4K">4K</option>
+      </select>
+      <p class="error" id="resolution-error" hidden></p>
+
+      <button id="save-button" type="submit">Save configuration</button>
+      <p id="save-success" class="success" role="status" hidden>Configuration saved.</p>
+    </form>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    Portal.requireLogin();
+    var id = new URLSearchParams(window.location.search).get("id");
+    var device = Portal.getDevice(id);
+    if (!device) {
+      document.getElementById("device-title").textContent = "Device not found";
+      document.getElementById("config-form").hidden = true;
+    } else {
+      document.getElementById("device-title").textContent = device.id;
+      document.getElementById("device-meta").textContent =
+        device.type + " on " + device.bus + " (firmware " + device.firmware + ")";
+    }
+
+    document.getElementById("config-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var cfg = {
+        ip: document.getElementById("ip").value,
+        retention: document.getElementById("retention").value,
+        resolution: document.getElementById("resolution").value
+      };
+      var errors = Portal.validateConfig(cfg);
+      ["ip", "retention", "resolution"].forEach(function (field) {
+        var el = document.getElementById(field + "-error");
+        el.textContent = errors[field] || "";
+        el.hidden = !errors[field];
+      });
+      document.getElementById("save-success").hidden = Object.keys(errors).length > 0;
+    });
+  </script>
+</body>
+</html>
